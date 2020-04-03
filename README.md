@@ -1,4 +1,4 @@
-# svg-path-converter
+# svg-path-converter [![npm version](https://img.shields.io/npm/v/svg-path-converter.svg?style=flat)](https://www.npmjs.com/package/svg-path-converter)
 NPM module for converting svgs to single paths.
 
 Based on [svgcrush](https://github.com/fdb/svgcrush).
