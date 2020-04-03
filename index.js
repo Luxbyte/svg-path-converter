@@ -339,8 +339,6 @@ function parsePath(el) {
   let path = new Path();
   let d = el.getAttribute('d');
   let tokens = tokenizePathData(d);
-  let currentCommand = null;
-  let subPath = false;
   let x, y, x1, y1, x2, y2;
   let i = 0;
   for (;;) {
@@ -351,78 +349,86 @@ function parsePath(el) {
       x = tokens[i++];
       y = tokens[i++];
       path.moveTo(x, y);
-      subPath = true;
     } else if (token === 'L') {
-      console.assert(subPath); // TODO: not quite correct -- can start subpath
-      x = tokens[i++];
-      y = tokens[i++];
-      path.lineTo(x, y);
+      while (!tokenIsCommand(tokens[i])) {
+        x = tokens[i++];
+        y = tokens[i++];
+        path.lineTo(x, y);
+      }
     } else if (token === 'H') {
-      console.assert(subPath); // TODO: not quite correct -- can start subpath
       console.assert(x !== undefined && y !== undefined);
-      x = tokens[i++];
-      path.lineTo(x, y);
+      while (!tokenIsCommand(tokens[i])) {
+        x = tokens[i++];
+        path.lineTo(x, y);
+      }
     } else if (token === 'V') {
-      console.assert(subPath); // TODO: not quite correct -- can start subpath
       console.assert(x !== undefined && y !== undefined);
-      y = tokens[i++];
-      path.lineTo(x, y);
+      while (!tokenIsCommand(tokens[i])) {
+        y = tokens[i++];
+        path.lineTo(x, y);
+      }
     } else if (token === 'l') {
-      console.assert(subPath); // TODO: not quite correct -- can start subpath
       console.assert(x !== undefined && y !== undefined);
-      x += tokens[i++];
-      y += tokens[i++];
-      path.lineTo(x, y);
+      while (!tokenIsCommand(tokens[i])) {
+        x += tokens[i++];
+        y += tokens[i++];
+        path.lineTo(x, y);
+      }
     } else if (token === 'h') {
-      console.assert(subPath); // TODO: not quite correct -- can start subpath
       console.assert(x !== undefined && y !== undefined);
-      x += tokens[i++];
-      path.lineTo(x, y);
+      while (!tokenIsCommand(tokens[i])) {
+        x += tokens[i++];
+        path.lineTo(x, y);
+      }
     } else if (token === 'v') {
-      console.assert(subPath); // TODO: not quite correct -- can start subpath
       console.assert(x !== undefined && y !== undefined);
-      y += tokens[i++];
-      path.lineTo(x, y);
+      while (!tokenIsCommand(tokens[i])) {
+        y += tokens[i++];
+        path.lineTo(x, y);
+      }
     } else if (token === 'C') {
-      console.assert(subPath); // TODO: not quite correct -- can start subpath
-      x1 = tokens[i++];
-      y1 = tokens[i++];
-      x2 = tokens[i++];
-      y2 = tokens[i++];
-      x = tokens[i++];
-      y = tokens[i++];
-      path.curveTo(x1, y1, x2, y2, x, y);
+      while (!tokenIsCommand(tokens[i])) {
+        x1 = tokens[i++];
+        y1 = tokens[i++];
+        x2 = tokens[i++];
+        y2 = tokens[i++];
+        x = tokens[i++];
+        y = tokens[i++];
+        path.curveTo(x1, y1, x2, y2, x, y);
+      }
     } else if (token === 'c') {
-      console.assert(subPath); // TODO: not quite correct -- can start subpath
       console.assert(x !== undefined && y !== undefined);
-      x1 = x + tokens[i++];
-      y1 = y + tokens[i++];
-      x2 = x + tokens[i++];
-      y2 = y + tokens[i++];
-      x += tokens[i++];
-      y += tokens[i++];
-      path.curveTo(x1, y1, x2, y2, x, y);
+      while (!tokenIsCommand(tokens[i])) {
+        x1 = x + tokens[i++];
+        y1 = y + tokens[i++];
+        x2 = x + tokens[i++];
+        y2 = y + tokens[i++];
+        x += tokens[i++];
+        y += tokens[i++];
+        path.curveTo(x1, y1, x2, y2, x, y);
+      }
     } else if (token === 'S') {
-      console.assert(subPath); // TODO: not quite correct -- can start subpath
-      x1 = x + (x - x2);
-      y1 = y + (y - y2);
-      x2 = tokens[i++];
-      y2 = tokens[i++];
-      x = tokens[i++];
-      y = tokens[i++];
-      path.curveTo(x1, y1, x2, y2, x, y);
+      while (!tokenIsCommand(tokens[i])) {
+        x1 = x + (x - x2);
+        y1 = y + (y - y2);
+        x2 = tokens[i++];
+        y2 = tokens[i++];
+        x = tokens[i++];
+        y = tokens[i++];
+        path.curveTo(x1, y1, x2, y2, x, y);
+      }
     } else if (token === 's') {
-      console.assert(subPath); // TODO: not quite correct -- can start subpath
       console.assert(x !== undefined && y !== undefined);
-      x1 = x + (x - x2);
-      y1 = y + (y - y2);
-      x2 = x + tokens[i++];
-      y2 = y + tokens[i++];
-      x += tokens[i++];
-      y += tokens[i++];
-      path.curveTo(x1, y1, x2, y2, x, y);
+      while (!tokenIsCommand(tokens[i])) {
+        x1 = x + (x - x2);
+        y1 = y + (y - y2);
+        x2 = x + tokens[i++];
+        y2 = y + tokens[i++];
+        x += tokens[i++];
+        y += tokens[i++];
+        path.curveTo(x1, y1, x2, y2, x, y);
+      }
     } else if (token === 'z' || token === 'Z') {
-      console.assert(subPath); // TODO: not quite correct -- can start subpath
       path.closePath();
     } else {
       throw new Error('Unknown SVG command ' + token);
