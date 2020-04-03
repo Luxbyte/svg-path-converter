@@ -4,7 +4,7 @@ const QUADTO = 'Q';
 const CURVETO = 'C';
 const CLOSE = 'Z';
 
-const SUPPORTED_ELEMENTS = ["g", "rect", "circle", "ellipse", "path", "polygon"];
+const SUPPORTED_ELEMENTS = ["g", "line", "rect", "circle", "ellipse", "path", "polygon"];
 
 function joinNumbers(digits, ...numbers) {
   let s = '';
@@ -487,6 +487,18 @@ function parseRect(el) {
   return path;
 }
 
+function parseLine(el) {
+  let x1 = parseFloat(el.getAttribute('x1') || 0);
+  let y1 = parseFloat(el.getAttribute('y1') || 0);
+  let x2 = parseFloat(el.getAttribute('x2') || 0);
+  let y2 = parseFloat(el.getAttribute('y2') || 0);
+  let path = new Path();
+  path.moveTo(x1, y1);
+  path.lineTo(x2, y2);
+  path = parseTransform(el, path);
+  return path;
+}
+
 function parseEllipse(el) {
   let cx = parseFloat(el.getAttribute('cx') || 0);
   let cy = parseFloat(el.getAttribute('cy') || 0);
@@ -519,6 +531,8 @@ function parseElement(el) {
     return parsePolygon(el);
   } else if (el.nodeName === 'rect') {
     return parseRect(el);
+  } else if (el.nodeName === 'line') {
+    return parseLine(el);
   } else if (el.nodeName === 'ellipse') {
     return parseEllipse(el);
   } else if (el.nodeName === 'circle') {
