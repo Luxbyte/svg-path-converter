@@ -349,6 +349,11 @@ function parsePath(el) {
       x = tokens[i++];
       y = tokens[i++];
       path.moveTo(x, y);
+    } else if (token === 'm') {
+      console.assert(x !== undefined && y !== undefined);
+      x += tokens[i++];
+      y += tokens[i++];
+      path.moveTo(x, y);
     } else if (token === 'L') {
       while (!tokenIsCommand(tokens[i])) {
         x = tokens[i++];
