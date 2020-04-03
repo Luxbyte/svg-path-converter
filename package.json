@@ -1,0 +1,26 @@
+{
+  "name": "svg-path-converter",
+  "version": "1.0.0",
+  "description": "SVG to path converter for JS",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Luxbyte/svg-path-converter.git"
+  },
+  "author": "Luxbyte",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Luxbyte/svg-path-converter/issues"
+  },
+  "homepage": "https://github.com/Luxbyte/svg-path-converter#readme",
+  "devDependencies": {
+    "fs": "0.0.1-security",
+    "jsdom": "^11.7.0"
+  }
+}
