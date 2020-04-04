@@ -12,6 +12,10 @@ npm install --save svg-path-converter
 
 ## Updates
 
+### Version 1.0.11
+* Fixed path 'm' commands with more than 2 parameters
+* Fixed some `<rect>` elements not being converted correctly
+
 ### Version 1.0.8
 * Bug fixes
 * Changed options syntax

@@ -436,6 +436,11 @@ function parsePath(el) {
       startX = x;
       startY = y;
       path.moveTo(x, y);
+      while (commandContinuesAt(tokens, i)) {
+        x = tokens[i++];
+        y = tokens[i++];
+        path.lineTo(x, y);
+      }
     } else if (token === 'm') {
       if (x === undefined) {
         x = tokens[i++];
@@ -450,6 +455,11 @@ function parsePath(el) {
       startX = x;
       startY = y;
       path.moveTo(x, y);
+      while (commandContinuesAt(tokens, i)) {
+        x += tokens[i++];
+        y += tokens[i++];
+        path.lineTo(x, y);
+      }
     } else if (token === 'L') {
       while (commandContinuesAt(tokens, i)) {
         x = tokens[i++];
@@ -633,8 +643,8 @@ function parsePolygon(el) {
 function parseRect(el) {
   let x = parseFloat(el.getAttribute('x') || 0);
   let y = parseFloat(el.getAttribute('y') || 0);
-  let width = parseFloat(el.getAttribute('width'));
-  let height  = parseFloat(el.getAttribute('height'));
+  let width = parseFloat(el.getAttribute('width') || el.getBoundingClientRect().width);
+  let height  = parseFloat(el.getAttribute('height') || el.getBoundingClientRect().height);
   let path = new Path();
   path.moveTo(x, y);
   path.lineTo(x + width, y);
