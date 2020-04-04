@@ -35,13 +35,16 @@ function joinNumbers(digits, ...numbers) {
 
 function parseUnitNumber(s) {
   if (!s) return undefined;
-  let number = parseFloat(s) || 0;
+  let number = parseFloat(s);
+  if (isNaN(number)) {
+    throw new Error('Invalid SVG size provided: ' + number);
+  }
   let unit = s.match(/[^0-9.]+/);
   if (unit) {
     // convert size to pixel
     return number * (unitMap[unit[0]] || 1);
   } else {
-    throw new Error('No unit provided for svg size');
+    return number;
   }
 }
 
