@@ -1,11 +1,25 @@
+// path commands
 const MOVETO = 'M';
 const LINETO = 'L';
 const QUADTO = 'Q';
+const SHORTQUADTO = 'T';
 const CURVETO = 'C';
 const SHORTCURVETO = 'S';
 const CLOSE = 'Z';
+const ARCTO = 'A';
 
+// supported svg elements
 const SUPPORTED_ELEMENTS = ["g", "line", "rect", "circle", "ellipse", "path", "polygon"];
+
+// unit conversion map (xx to px)
+const unitMap = {
+  "px": 1,
+  "in": 96,
+  "cm": 37.795,
+  "mm": 3.7795,
+  "pt": 1.3333,
+  "pc": 16
+}
 
 function joinNumbers(digits, ...numbers) {
   let s = '';
@@ -21,17 +35,13 @@ function joinNumbers(digits, ...numbers) {
 
 function parseUnitNumber(s) {
   if (!s) return undefined;
-  let m = s.match(/^(-?[\d\.]+)(px)?$/);
-  if (!m) {
-    throw new Error('Could not parse number: ' + s);
-  }
-  let v = parseFloat(m[1]);
-  if (m[2] === 'px') {
-    return v;
-  } else if (m[2] === undefined) {
-    return v;
+  let number = parseFloat(s) || 0;
+  let unit = s.match(/[^0-9.]+/);
+  if (unit) {
+    // convert size to pixel
+    return number * (unitMap[unit[0]] || 1);
   } else {
-   throw new Error('Unsupported unit: ' + m[2]);
+    throw new Error('No unit provided for svg size');
   }
 }
 
@@ -94,6 +104,13 @@ class Transform {
             y1: cmd.x1 * m[1] + cmd.y1 * m[3] + m[5]
           };
           break;
+        case SHORTQUADTO:
+          newCommands[i] = {
+            type: SHORTQUADTO,
+            x: cmd.x * m[0] + cmd.y * m[2] + m[4],
+            y: cmd.x * m[1] + cmd.y * m[3] + m[5]
+          };
+          break;
         case CURVETO:
           newCommands[i] = {
             type: CURVETO,
@@ -103,6 +120,18 @@ class Transform {
             y1: cmd.x1 * m[1] + cmd.y1 * m[3] + m[5],
             x2: cmd.x2 * m[0] + cmd.y2 * m[2] + m[4],
             y2: cmd.x2 * m[1] + cmd.y2 * m[3] + m[5]
+          };
+          break;
+        case ARCTO:
+          newCommands[i] = {
+            type: ARCTO,
+            rx: cmd.rx * m[0] + cmd.ry * m[2] + m[4],
+            ry: cmd.rx * m[1] + cmd.ry * m[3] + m[5],
+            xRot: cmd.xRot,
+            arcFlag: cmd.arcFlag,
+            sweepFlag: cmd.sweepFlag,
+            x: cmd.x * m[0] + cmd.y * m[2] + m[4],
+            y: cmd.x * m[1] + cmd.y * m[3] + m[5]
           };
           break;
         case SHORTCURVETO:
@@ -140,6 +169,18 @@ class Path {
 
   curveTo(x1, y1, x2, y2, x, y) {
     this.commands.push({type: CURVETO, x1: x1, y1: y1, x2: x2, y2: y2, x: x, y: y});
+  }
+
+  quadTo(x1, y1, x, y) {
+    this.commands.push({type: QUADTO, x1: x1, y1: y1, x: x, y: y});
+  }
+
+  shortQuadTo(x, y) {
+    this.commands.push({type: SHORTQUADTO, x: x, y: y});
+  }
+
+  arcTo(rx, ry, xRot, arcFlag, sweepFlag, x, y) {
+    this.commands.push({type: ARCTO, rx, ry, xRot, arcFlag, sweepFlag, x, y});
   }
 
   shortCurveTo(x2, y2, x, y) {
@@ -253,9 +294,19 @@ class Path {
         d += joinNumbers(digits, cmd.x1, cmd.y1, cmd.x, cmd.y);
         x = cmd.x;
         y = cmd.y;
+      } else if (cmd.type === SHORTQUADTO) {
+        d += 'T';
+        d += joinNumbers(digits, cmd.x, cmd.y);
+        x = cmd.x;
+        y = cmd.y;
       } else if (cmd.type === CURVETO) {
         d += 'C';
         d += joinNumbers(digits, cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y);
+        x = cmd.x;
+        y = cmd.y;
+      } else if (cmd.type === ARCTO) {
+        d += 'A';
+        d += joinNumbers(digits, cmd.rx, cmd.ry, cmd.xRot, cmd.arcFlag, cmd.sweepFlag, cmd.x, cmd.y);
         x = cmd.x;
         y = cmd.y;
       } else if (cmd.type === SHORTCURVETO) {
@@ -470,6 +521,59 @@ function parsePath(el) {
         x += tokens[i++];
         y += tokens[i++];
         path.shortCurveTo(x2, y2, x, y);
+      }
+    } else if (token === 'Q') {
+      while (commandContinuesAt(tokens, i)) {
+        x1 = tokens[i++];
+        y1 = tokens[i++];
+        x = tokens[i++];
+        y = tokens[i++];
+        path.quadTo(x1, y1, x, y);
+      }
+    } else if (token === 'q') {
+      console.assert(x !== undefined && y !== undefined);
+      while (commandContinuesAt(tokens, i)) {
+        x1 = x + tokens[i++];
+        y1 = x + tokens[i++];
+        x += tokens[i++];
+        y += tokens[i++];
+        path.quadTo(x1, y1, x, y);
+      }
+    } else if (token === 'T') {
+      while (commandContinuesAt(tokens, i)) {
+        x = tokens[i++];
+        y = tokens[i++];
+        path.shortQuadTo(x, y);
+      }
+    } else if (token === 't') {
+      console.assert(x !== undefined && y !== undefined);
+      while (commandContinuesAt(tokens, i)) {
+        x += tokens[i++];
+        y += tokens[i++];
+        path.shortQuadTo(x, y);
+      }
+    } else if (token === 'A') {
+      while (commandContinuesAt(tokens, i)) {
+        rx = tokens[i++];
+        ry = tokens[i++];
+        xRot = tokens[i++];
+        arcFlag = tokens[i++];
+        sweepFlag = tokens[i++];
+        x = tokens[i++];
+        y = tokens[i++];
+        path.arcTo(rx, ry, xRot, arcFlag, sweepFlag, x, y);
+      }
+    } else if (token === 'a') {
+      console.assert(x !== undefined && y !== undefined);
+      while (commandContinuesAt(tokens, i)) {
+        rx = tokens[i++];
+        ry = tokens[i++];
+        xRot = tokens[i++];
+        arcFlag = tokens[i++];
+        sweepFlag = tokens[i++];
+        x += tokens[i++];
+        y += tokens[i++];
+        path.arcTo(rx, ry, xRot, arcFlag, sweepFlag, x, y);
       }
     } else if (token === 'z' || token === 'Z') {
       x = startX;
