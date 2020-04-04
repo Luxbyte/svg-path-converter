@@ -2,6 +2,7 @@ const MOVETO = 'M';
 const LINETO = 'L';
 const QUADTO = 'Q';
 const CURVETO = 'C';
+const SHORTCURVETO = 'S';
 const CLOSE = 'Z';
 
 const SUPPORTED_ELEMENTS = ["g", "line", "rect", "circle", "ellipse", "path", "polygon"];
@@ -104,6 +105,15 @@ class Transform {
             y2: cmd.x2 * m[1] + cmd.y2 * m[3] + m[5]
           };
           break;
+        case SHORTCURVETO:
+          newCommands[i] = {
+            type: SHORTCURVETO,
+            x: cmd.x * m[0] + cmd.y * m[2] + m[4],
+            y: cmd.x * m[1] + cmd.y * m[3] + m[5],
+            x2: cmd.x2 * m[0] + cmd.y2 * m[2] + m[4],
+            y2: cmd.x2 * m[1] + cmd.y2 * m[3] + m[5]
+          };
+          break;
         case CLOSE:
           newCommands[i] = { type: CLOSE };
           break;
@@ -130,6 +140,10 @@ class Path {
 
   curveTo(x1, y1, x2, y2, x, y) {
     this.commands.push({type: CURVETO, x1: x1, y1: y1, x2: x2, y2: y2, x: x, y: y});
+  }
+
+  shortCurveTo(x2, y2, x, y) {
+    this.commands.push({type: SHORTCURVETO, x2: x2, y2: y2, x: x, y: y});
   }
 
   closePath() {
@@ -244,6 +258,11 @@ class Path {
         d += joinNumbers(digits, cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y);
         x = cmd.x;
         y = cmd.y;
+      } else if (cmd.type === SHORTCURVETO) {
+        d += 'S';
+        d += joinNumbers(digits, cmd.x2, cmd.y2, cmd.x, cmd.y);
+        x = cmd.x;
+        y = cmd.y;
       } else if (cmd.type === CLOSE) {
         d += 'z';
       }
@@ -351,7 +370,7 @@ function parsePath(el) {
   let path = new Path();
   let d = el.getAttribute('d');
   let tokens = tokenizePathData(d);
-  let x, y, x1, y1, x2, y2;
+  let x, y, x1, y1, x2, y2, startX, startY;
   let i = 0;
   for (;;) {
     if (i >= tokens.length) break;
@@ -360,11 +379,15 @@ function parsePath(el) {
     if (token === 'M') {
       x = tokens[i++];
       y = tokens[i++];
+      startX = x;
+      startY = y;
       path.moveTo(x, y);
     } else if (token === 'm') {
       console.assert(x !== undefined && y !== undefined);
       x += tokens[i++];
       y += tokens[i++];
+      startX = x;
+      startY = y;
       path.moveTo(x, y);
     } else if (token === 'L') {
       while (commandContinuesAt(tokens, i)) {
@@ -426,26 +449,24 @@ function parsePath(el) {
       }
     } else if (token === 'S') {
       while (commandContinuesAt(tokens, i)) {
-        x1 = x + (x - x2);
-        y1 = y + (y - y2);
         x2 = tokens[i++];
         y2 = tokens[i++];
         x = tokens[i++];
         y = tokens[i++];
-        path.curveTo(x1, y1, x2, y2, x, y);
+        path.shortCurveTo(x2, y2, x, y);
       }
     } else if (token === 's') {
       console.assert(x !== undefined && y !== undefined);
       while (commandContinuesAt(tokens, i)) {
-        x1 = x + (x - x2);
-        y1 = y + (y - y2);
         x2 = x + tokens[i++];
         y2 = y + tokens[i++];
         x += tokens[i++];
         y += tokens[i++];
-        path.curveTo(x1, y1, x2, y2, x, y);
+        path.shortCurveTo(x2, y2, x, y);
       }
     } else if (token === 'z' || token === 'Z') {
+      x = startX;
+      y = startY;
       path.closePath();
     } else {
       throw new Error('Unknown SVG command ' + token);
