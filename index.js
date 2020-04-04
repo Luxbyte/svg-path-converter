@@ -318,9 +318,17 @@ function tokenizePathData(d) {
       tokens.push(c);
     } else if ((c >= '0' && c <= '9') || c === '.' || c === '-') {
       let start = i;
+      let hasDot = false;
       do {
         i++;
         c = d[i];
+        if (c === ".") {
+          if (!hasDot) {
+            hasDot = true;
+          } else {
+            break;
+          }
+        }
       } while ((c >= '0' && c <= '9') || (c === '.'))
       tokens.push(parseFloat(d.substring(start, i)));
       if (i !== start) {
@@ -613,8 +621,8 @@ function svgToPath(svgElement, newWidth) {
     height = viewHeight;
   }
 
-  path.roundOff();
-  let d = path.toPathData();
+  //path.roundOff();
+  let d = path.toPathData(0);
 
   return `<svg width="${width}" height="${height}" viewBox="0 0 ${viewWidth} ${viewHeight}" xmlns="http://www.w3.org/2000/svg"><path d="${d}"/></svg>`;
 }
