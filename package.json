@@ -1,6 +1,6 @@
 {
   "name": "svg-path-converter",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "SVG to path converter for JS",
   "main": "index.js",
   "directories": {

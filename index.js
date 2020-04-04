@@ -343,6 +343,10 @@ function tokenizePathData(d) {
   return tokens;
 }
 
+function commandContinuesAt(tokens, i) {
+  return !tokenIsCommand(tokens[i]) && i < tokens.length;
+}
+
 function parsePath(el) {
   let path = new Path();
   let d = el.getAttribute('d');
@@ -363,44 +367,44 @@ function parsePath(el) {
       y += tokens[i++];
       path.moveTo(x, y);
     } else if (token === 'L') {
-      while (!tokenIsCommand(tokens[i])) {
+      while (commandContinuesAt(tokens, i)) {
         x = tokens[i++];
         y = tokens[i++];
         path.lineTo(x, y);
       }
     } else if (token === 'H') {
       console.assert(x !== undefined && y !== undefined);
-      while (!tokenIsCommand(tokens[i])) {
+      while (commandContinuesAt(tokens, i)) {
         x = tokens[i++];
         path.lineTo(x, y);
       }
     } else if (token === 'V') {
       console.assert(x !== undefined && y !== undefined);
-      while (!tokenIsCommand(tokens[i])) {
+      while (commandContinuesAt(tokens, i)) {
         y = tokens[i++];
         path.lineTo(x, y);
       }
     } else if (token === 'l') {
       console.assert(x !== undefined && y !== undefined);
-      while (!tokenIsCommand(tokens[i])) {
+      while (commandContinuesAt(tokens, i)) {
         x += tokens[i++];
         y += tokens[i++];
         path.lineTo(x, y);
       }
     } else if (token === 'h') {
       console.assert(x !== undefined && y !== undefined);
-      while (!tokenIsCommand(tokens[i])) {
+      while (commandContinuesAt(tokens, i)) {
         x += tokens[i++];
         path.lineTo(x, y);
       }
     } else if (token === 'v') {
       console.assert(x !== undefined && y !== undefined);
-      while (!tokenIsCommand(tokens[i])) {
+      while (commandContinuesAt(tokens, i)) {
         y += tokens[i++];
         path.lineTo(x, y);
       }
     } else if (token === 'C') {
-      while (!tokenIsCommand(tokens[i])) {
+      while (commandContinuesAt(tokens, i)) {
         x1 = tokens[i++];
         y1 = tokens[i++];
         x2 = tokens[i++];
@@ -411,7 +415,7 @@ function parsePath(el) {
       }
     } else if (token === 'c') {
       console.assert(x !== undefined && y !== undefined);
-      while (!tokenIsCommand(tokens[i])) {
+      while (commandContinuesAt(tokens, i)) {
         x1 = x + tokens[i++];
         y1 = y + tokens[i++];
         x2 = x + tokens[i++];
@@ -421,7 +425,7 @@ function parsePath(el) {
         path.curveTo(x1, y1, x2, y2, x, y);
       }
     } else if (token === 'S') {
-      while (!tokenIsCommand(tokens[i])) {
+      while (commandContinuesAt(tokens, i)) {
         x1 = x + (x - x2);
         y1 = y + (y - y2);
         x2 = tokens[i++];
@@ -432,7 +436,7 @@ function parsePath(el) {
       }
     } else if (token === 's') {
       console.assert(x !== undefined && y !== undefined);
-      while (!tokenIsCommand(tokens[i])) {
+      while (commandContinuesAt(tokens, i)) {
         x1 = x + (x - x2);
         y1 = y + (y - y2);
         x2 = x + tokens[i++];
