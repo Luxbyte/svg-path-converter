@@ -383,9 +383,16 @@ function parsePath(el) {
       startY = y;
       path.moveTo(x, y);
     } else if (token === 'm') {
-      console.assert(x !== undefined && y !== undefined);
-      x += tokens[i++];
-      y += tokens[i++];
+      if (x === undefined) {
+        x = tokens[i++];
+      } else {
+        x += tokens[i++];
+      }
+      if (y === undefined) {
+        y = tokens[i++];
+      } else {
+        y += tokens[i++];
+      }
       startX = x;
       startY = y;
       path.moveTo(x, y);
@@ -567,7 +574,9 @@ function parseCircle(el) {
 // Parse the child elements and add them to the path.
 function parseElement(el) {
   if (el.nodeName === 'g') {
-    let paths = Array.from(el.children).map(child => parseElement(child));
+    let paths = Array.from(el.children)
+                     .filter(child => SUPPORTED_ELEMENTS.includes(child.nodeName))
+                     .map(child => parseElement(child));
     return new Group(paths);
   } else if (el.nodeName === 'path') {
     return parsePath(el);
@@ -620,7 +629,7 @@ function parseSvg(svg) {
 }
 
 // ============================================================================================================
-function svgToPath(svgElement, newWidth) {
+function svgToPath(svgElement, options = {}) {
   let svg = parseSvg(svgElement);
   let path = svg.root.flatten();
 
@@ -637,17 +646,25 @@ function svgToPath(svgElement, newWidth) {
   const ratio = svg.width / svg.height;
 
   // Normalize given size
-  if (newWidth !== undefined) {
-    let factor = newWidth / width;
+  if (options.height !== undefined) {
+    let factor = options.height / height;
     path = path.scale(factor);
-    viewWidth = newWidth;
-    viewHeight = newWidth / ratio;
+    viewWidth = options.height * ratio;
+    viewHeight = options.height;
+    width = viewWidth;
+    height = viewHeight;
+  }
+  if (options.width !== undefined) {
+    let factor = options.width / width;
+    path = path.scale(factor);
+    viewWidth = options.width;
+    viewHeight = options.width / ratio;
     width = viewWidth;
     height = viewHeight;
   }
 
-  //path.roundOff();
-  let d = path.toPathData(0);
+  // path.roundOff();
+  let d = path.toPathData(options.precision || 0);
 
   return `<svg width="${width}" height="${height}" viewBox="0 0 ${viewWidth} ${viewHeight}" xmlns="http://www.w3.org/2000/svg"><path d="${d}"/></svg>`;
 }

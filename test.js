@@ -6,5 +6,5 @@ var { JSDOM }  = jsdom;
 fs.readFile('./icons/translation.svg', (err, data) => {
   let dom = new JSDOM(data.toString());
   let svg = dom.window.document.querySelector("svg");
-  console.log(svgToPath(svg, 200));
+  console.log(svgToPath(svg, {width: 200}));
 });

@@ -15,7 +15,7 @@ npm install --save svg-path-converter
 
 ## Usage
 
-svgToPath(svgElement, [width])
+svgToPath(svgElement, [options])
 
 ```
 import svgToPath from 'svg-path-converter';
