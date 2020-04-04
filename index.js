@@ -318,7 +318,7 @@ function tokenizePathData(d) {
       tokens.push(c);
     } else if ((c >= '0' && c <= '9') || c === '.' || c === '-') {
       let start = i;
-      let hasDot = false;
+      let hasDot = (c === ".");
       do {
         i++;
         c = d[i];
