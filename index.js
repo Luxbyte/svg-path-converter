@@ -28,7 +28,7 @@ function joinNumbers(digits, ...numbers) {
     if (i > 0 && v >= 0) {
       s += ',';
     }
-    s += v.toFixed(digits);
+    s += parseFloat(v.toFixed(digits)).toString();
   }
   return s;
 }
