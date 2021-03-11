@@ -12,6 +12,10 @@ npm install --save svg-path-converter
 
 ## Updates
 
+### Version 1.0.12
+* Fixed bug related to trailing zeroes in path when using precision > 0 [(Thanks to SkylerLipthay)](https://github.com/Luxbyte/svg-path-converter/pull/3)
+* Changed default precision from 0 to 4
+
 ### Version 1.0.11
 * Fixed path 'm' commands with more than 2 parameters
 * Fixed some `<rect>` elements not being converted correctly
@@ -19,9 +23,6 @@ npm install --save svg-path-converter
 ### Version 1.0.8
 * Bug fixes
 * Changed options syntax
-
-### Version 1.0.0
-* Initial commit
 
 ## Usage
 
@@ -39,7 +40,7 @@ let path = svgToPath(svg);
 |--------------|-----------------|--------------|------|
 | width        | Float           | input SVG width  | Scale output SVG to given width while preserving aspect ratio |
 | height       | Float           | input SVG height | Scale output SVG to given height while preserving aspect ratio |
-| precision    | Integer         | 0            | Number of digits after comma for path values |
+| precision    | Integer         | 4            | Number of digits after comma for path values |
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details

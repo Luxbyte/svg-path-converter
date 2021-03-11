@@ -781,7 +781,7 @@ function svgToPath(svgElement, options = {}) {
   }
 
   // path.roundOff();
-  let d = path.toPathData(options.precision || 0);
+  let d = path.toPathData(options.precision || 4);
 
   return `<svg width="${width}" height="${height}" viewBox="0 0 ${viewWidth} ${viewHeight}" xmlns="http://www.w3.org/2000/svg"><path d="${d}"/></svg>`;
 }
