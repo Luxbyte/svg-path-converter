@@ -21,6 +21,6 @@
   "homepage": "https://github.com/Luxbyte/svg-path-converter#readme",
   "devDependencies": {
     "fs": "0.0.1-security",
-    "jsdom": "^11.7.0"
+    "jsdom": "^16.5.0"
   }
 }
